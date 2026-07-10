@@ -358,7 +358,13 @@ RUN <<-EOF
         chown -R www-data:0 /var/log/supervisor /etc/supervisor /etc/nginx
         chmod -R g=u /var/log/supervisor /etc/supervisor /etc/nginx
         find /var/log/supervisor /etc/supervisor /etc/nginx -type d -exec chmod g+s '{}' +
+        # unix_http_server's "file" and supervisord's "pidfile" are the
+        # socket/pidfile paths themselves; supervisorctl's "serverurl"
+        # (used by configure_misp.sh to start the worker programs) must
+        # point at the same relocated socket or it silently fails to
+        # connect and the (autostart=false) workers never start.
         sed -i -E 's#^(file|pidfile)=/var/run/#\1=/tmp/#' /etc/supervisor/supervisord.conf
+        sed -i -E 's#^(serverurl=unix://)/var/run/#\1/tmp/#' /etc/supervisor/supervisord.conf
 EOF
 ENTRYPOINT [ "/entrypoint.sh" ]
 
