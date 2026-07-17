@@ -353,17 +353,20 @@ spec:
               port: 8080
           {{- end }}
           {{- if .Values.misp.readiness.enabled }}
+          # Previously an exec probe grepping /misp/readiness/ready.log for
+          # "MISP is ready" - nothing in the image or this chart ever wrote
+          # that file, so the probe could never succeed. httpGet against
+          # nginx (same check as livenessProbe/startupProbe above) actually
+          # reflects whether MISP is serving requests.
           readinessProbe:
             failureThreshold: {{ .Values.misp.readiness.failure }}
             initialDelaySeconds: {{ .Values.misp.readiness.delay }}
             periodSeconds: {{ .Values.misp.readiness.period }}
             successThreshold: {{ .Values.misp.readiness.success }}
             timeoutSeconds: {{ .Values.misp.readiness.timeout }}
-            exec:
-              command:
-                - "/bin/sh"
-                - "-c"
-                - "grep -i 'MISP is ready' /misp/readiness/ready.log"
+            httpGet:
+              path: /
+              port: 8080
           {{- end }}
           {{- if .Values.misp.startup.enabled }}
           startupProbe:

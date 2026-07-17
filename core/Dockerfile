@@ -31,6 +31,7 @@ RUN <<-EOF
                 mariadb-client \
                 rsync \
                 rsyslog \
+                libnss-wrapper \
                 php${PHP_PACKAGE_VERSION} \
                 php${PHP_PACKAGE_VERSION}-curl \
                 php${PHP_PACKAGE_VERSION}-xml \
@@ -59,6 +60,7 @@ RUN <<-EOF
                 mariadb-client \
                 rsync \
                 rsyslog \
+                libnss-wrapper \
                 php${PHP_PACKAGE_VERSION} \
                 php${PHP_PACKAGE_VERSION}-apcu \
                 php${PHP_PACKAGE_VERSION}-curl \
