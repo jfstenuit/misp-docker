@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -uo pipefail
 
 # Fixes ownership of misp-core's bind-mounted host directories before
 # misp-core itself starts. misp-core runs as a fixed non-root user (33:0)
@@ -33,6 +33,13 @@ for path in "${TARGETS[@]}"; do
     fi
 
     echo "init: fixing ownership of $path (was $owner)"
-    chown -R 33:0 "$path"
-    chmod -R g+rwX "$path"
+    chown -R 33:0 "$path" || echo "init: chown on $path failed (continuing best-effort - e.g. Docker Desktop bind mounts don't support arbitrary chown)"
+    chmod -R g+rwX "$path" || echo "init: chmod on $path failed (continuing best-effort)"
 done
+
+# Best-effort: a failed chown/chmod above is logged but never fails this
+# script, since misp-core depends on it via service_completed_successfully
+# and a hard failure here would block the whole stack from starting even
+# when misp-core could still work fine (e.g. Docker Desktop bind mounts
+# that are already group-writable without needing a real chown).
+exit 0

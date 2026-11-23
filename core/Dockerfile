@@ -349,12 +349,13 @@ EOF
 COPY files/ /
 
 # files/ was copied in as root:root, overwriting the ownership/group we
-# set on /etc/supervisor above for the pieces it touches (supervisor
-# confs) - redo it.
+# set above on /etc/supervisor (supervisor confs) and on /etc/php/*/fpm
+# (zz-openshift-env.conf's parent dirs, pool.d and fpm itself) for the
+# pieces it touches - redo it.
 RUN <<-EOF
-    chown -R www-data:0 /var/log/supervisor /etc/supervisor
-    chmod -R g=u /var/log/supervisor /etc/supervisor
-    find /var/log/supervisor /etc/supervisor -type d -exec chmod g+s '{}' +
+    chown -R www-data:0 /var/log/supervisor /etc/supervisor /etc/php/*/fpm /etc/php/*/cli
+    chmod -R g=u /var/log/supervisor /etc/supervisor /etc/php/*/fpm /etc/php/*/cli
+    find /var/log/supervisor /etc/supervisor /etc/php/*/fpm /etc/php/*/cli -type d -exec chmod g+s '{}' +
     # unix_http_server's "file" and supervisord's "pidfile" are the
     # socket/pidfile paths themselves; supervisorctl's "serverurl"
     # (used by configure_misp.sh to start the worker programs) must
